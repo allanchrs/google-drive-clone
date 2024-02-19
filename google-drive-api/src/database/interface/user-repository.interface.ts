@@ -1,4 +1,4 @@
-import { UserEntity } from "../entities/user.entity";
-import { BaseRepository } from "./base-reposity.interface";
+import { User } from "../entities/user.entity";
+import { IBaseRepository } from "./base-reposity.interface";
 
-export abstract class UserRepository extends BaseRepository<UserEntity>{ }
+export abstract class IUserRepository extends IBaseRepository<User>{ }

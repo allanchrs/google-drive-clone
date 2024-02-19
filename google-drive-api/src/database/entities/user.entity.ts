@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { BaseEntity } from "./base.entity";
-import { MediaEntity } from "./media.entity";
+import { Media } from "./media.entity";
 
 @Entity('users')
-export class UserEntity extends BaseEntity {
+export class User extends BaseEntity {
   @Column()
   email!: string
 
@@ -13,7 +13,7 @@ export class UserEntity extends BaseEntity {
   @Column()
   passsword!: string
 
-  @OneToMany(() => MediaEntity, media => media.user)
+  @OneToMany(() => Media, media => media.user)
   @JoinColumn({ referencedColumnName: 'user_id' })
-  medias?: MediaEntity[]
+  medias?: Media[]
 }

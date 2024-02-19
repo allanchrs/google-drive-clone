@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { BaseEntity } from "./base.entity";
-import { UserEntity } from "./user.entity";
+import { User } from "./user.entity";
 
 @Entity('medias')
-export class MediaEntity extends BaseEntity {
+export class Media extends BaseEntity {
   @Column()
   file_name!: string
 
@@ -19,7 +19,7 @@ export class MediaEntity extends BaseEntity {
   @Column({ nullable: true })
   key?: string
 
-  @ManyToOne(() => UserEntity, user => user.medias)
+  @ManyToOne(() => User, user => user.medias)
   @JoinColumn({ name: 'user_id' })
-  user?: UserEntity
+  user?: User
 }

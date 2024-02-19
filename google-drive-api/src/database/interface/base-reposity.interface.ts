@@ -1,9 +1,9 @@
-export abstract class BaseRepository<T> {
-  abstract save(entity: Partial<T>): Promise<T>;
+export abstract class IBaseRepository<Entity> {
+  abstract save(entity: Partial<Entity>): Promise<Entity>;
   abstract delete(id: string): Promise<void>;
   abstract softDelete(id: string): Promise<void>;
-  abstract findMany(): Promise<T[]>;
-  abstract findManyAndCount(): Promise<{ list: T[]; count: number }>;
-  abstract findOne(): Promise<T | null>;
-  abstract find(entity: Partial<T>): this;
+  abstract findMany(): Promise<Entity[]>;
+  abstract findManyAndCount(): Promise<{ list: Entity[]; count: number }>;
+  abstract findOne(): Promise<Entity | null>;
+  abstract find(entity: Partial<Entity>): this;
 } 

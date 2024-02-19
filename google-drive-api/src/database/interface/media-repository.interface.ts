@@ -1,3 +1,4 @@
-import { BaseRepository } from "./base-reposity.interface";
+import { Media } from "../entities/media.entity";
+import { IBaseRepository } from "./base-reposity.interface";
 
-export abstract class MediaRepository extends BaseRepository<MediaRepository>{ }
+export abstract class IMediaRepository extends IBaseRepository<Media>{ }
