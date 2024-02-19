@@ -1,0 +1,42 @@
+{
+  "name": "@allanvieira/google-drive-api",
+  "author": {
+    "name": "Allan Vieira",
+    "email": "allancnfx.vieira@gmail.com"
+  },
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "commonjs",
+  "license": "MIT",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "tsc",
+    "dev": "tsnd --inspect --transpile-only --ignore-watch node_modules src/server/index.ts",
+    "start": "node server/index.js",
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test": "jest --coverage=false",
+    "test:watch": "jest --watch --coverage=false",
+    "test:cov": "jest --coverage=true"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.515.0",
+    "dotenv": "^16.4.4",
+    "pg": "^8.11.3",
+    "pino": "^8.19.0",
+    "pino-pretty": "^10.3.1",
+    "pretty-bytes": "^6.1.1",
+    "reflect-metadata": "^0.2.1",
+    "socket.io": "^4.7.4",
+    "typeorm": "^0.3.20"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.19",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.3"
+  }
+}
