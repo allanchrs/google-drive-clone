@@ -55,7 +55,7 @@ export class Routes {
 
       if (route) {
         const controllerInstance = new Controller();
-        const result = await route.handler.apply(controllerInstance[route.handler.name], [request, response]);
+        const result = await route.handler.apply(controllerInstance, [request, response]);
         response.writeHead(200)
         response.end(JSON.stringify(result))
       } else {
