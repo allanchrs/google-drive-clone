@@ -23,7 +23,6 @@ class ServerInit {
       logger.info(`Server running at https://${address}:${port}`)
     }
 
-
     server.listen(this.PORT, start);
   }
 

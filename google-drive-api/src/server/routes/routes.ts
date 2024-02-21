@@ -39,6 +39,7 @@ export class Routes {
   async handler(request: IncomingMessage, response: ServerResponse) {
     response.setHeader('Access-Control-Allow-Origin', '*')
     response.setHeader('Content-type', 'application/json')
+
     for await (const Controller of this.controllers) {
       const {
         routes,
@@ -55,7 +56,7 @@ export class Routes {
 
       if (route) {
         const controllerInstance = new Controller();
-        const result = await route.handler.apply(controllerInstance, [request, response]);
+        const result = await route.handler.apply(controllerInstance, [request, response, this.io]);
         response.writeHead(200)
         response.end(JSON.stringify(result))
       } else {

@@ -6,6 +6,8 @@ import { Controller } from "../common/decorators/controller.decorator";
 import { Post } from "../common/decorators/post.decorator";
 import { Req } from "../common/decorators/request.decorator";
 import { Res } from "../common/decorators/response.decorator";
+import { Socket } from "../common/decorators/socket.decorator";
+import { Server } from "socket.io";
 
 @Controller('users')
 export class UserController {
@@ -13,12 +15,8 @@ export class UserController {
 
   @Post()
   async create(
-    @Body() body: any,
-    @Req() req: IncomingMessage,
-    @Res() res: ServerResponse,
+    @Socket() socket: Server,
   ): Promise<any> {
-    console.log({ req, res, body })
-
     return { test: 'aaa' }
     // return await this.createUser.execute(body);
   }

@@ -1,16 +1,6 @@
+import { HttpMethodEnum } from "../enums/http-method.enum";
+import { httpBaseDecorator } from "./base.decorator";
+
 export const Get = (path?: string) => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-    if (!target.routes) {
-      target.routes = [];
-    }
-    const prefix = target.constructor.prototype.prefix;
-
-    const full_path = path ? `${prefix}/${path}` : prefix;
-
-    target.routes.push({
-      method: 'GET',
-      path: full_path,
-      handler: descriptor.value
-    });
-  };
+  return httpBaseDecorator({ method: HttpMethodEnum.GET, path })
 }
