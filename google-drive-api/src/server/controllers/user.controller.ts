@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from "@common/decorators";
+import { Body, Controller, Post, Req } from "@common/decorators";
+import { IncomingMessage } from "http";
 
 @Controller('users')
 export class UserController {
@@ -7,6 +8,7 @@ export class UserController {
   @Post({ status: 201 })
   async create(
     @Body() body: any,
+    @Req() req: IncomingMessage
   ): Promise<any> {
     return body;
   }

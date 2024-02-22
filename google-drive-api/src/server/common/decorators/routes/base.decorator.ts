@@ -20,19 +20,18 @@ const registerRoute = ({ method, path, status, target, descriptor }: Input & { t
   }
   const prefix = target.constructor.prototype.prefix;
 
-  const full_path = path ? `${prefix}/${path}` : prefix;
-
   target.routes.push({
     method,
     status,
-    path: full_path,
+    prefix,
+    path: path,
     handler: descriptor.value
   });
 
   return descriptor;
 }
 
-export const baseHttpDecorator = ({ method, path, status = 200, interceptor }: Input): DefineOutput => {
+export const baseHttpDecorator = ({ method, path, status, interceptor }: Input): DefineOutput => {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
     if (interceptor) {
       interceptor(target, propertyKey, descriptor);

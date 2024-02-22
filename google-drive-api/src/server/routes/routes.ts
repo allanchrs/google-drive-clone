@@ -15,7 +15,7 @@ type Controller = {
   prefix?: string
 }
 export class Routes {
-  constructor(private readonly config: { controllers: (new () => any)[] }) { }
+  constructor(private readonly config?: { controllers: (new () => any)[] }) { }
   public io?: Server
 
   setSocketInstance(io: Server) {
@@ -53,7 +53,7 @@ export class Routes {
     response.writeHead(404)
     response.end(JSON.stringify({
       exception: 'NotFoundException',
-      message: `Route with url ${url} not found`
+      message: `Route with url [${request.method}] '${url}' not found`
     }));
   }
 
@@ -62,13 +62,24 @@ export class Routes {
   }
 
   private getMatchRoute(routes: RouteController[], request: IncomingMessage, prefix?: string,): RouteController | undefined {
+    if (!routes) return;
+    const request_method = request.method as string
+    const request_url = request.url as string;
     return routes
-      .filter(({ method }) => method.toLowerCase() === request.method?.toLowerCase())
+      .filter(({ method }) => method.toLowerCase() === request_method.toLowerCase())
       .find((route) => {
         const url = this.getRouteUrl(prefix, route.path);
-        const request_url = request.url?.trim()?.replace(/^\//, '');
-        return url.trim() === request_url
+        const format_request_url = request_url.trim().replace(/^\//, '');
+        return url.trim() === format_request_url
       })
+  }
+
+  private throwResponse(response: ServerResponse, message: string) {
+    response.writeHead(500)
+    response.end(JSON.stringify({
+      exception: 'InternalServerError',
+      message
+    }));
   }
 
   private async executeRouteController({
@@ -91,18 +102,19 @@ export class Routes {
       response.writeHead(route.status ?? 200)
       response.end(JSON.stringify(output))
     } catch (error: any) {
-      response.writeHead(404)
-      response.end(JSON.stringify({
-        exception: 'InternalServerError',
-        message: error.message
-      }));
+      this.throwResponse(response, error.message)
     }
   }
 
   async handler(request: IncomingMessage, response: ServerResponse) {
     this.setDefaultResponseHeaders(response)
 
-    if (request.method?.toLowerCase() === 'options') return this.options(response);
+    if (!request.method) return this.throwResponse(response, 'method not allowed')
+    if (!request.url) return this.routeNotFoundResponse(request, response)
+    if (!this.config) return this.routeNotFoundResponse(request, response)
+    if (this.config.controllers.length === 0) return this.routeNotFoundResponse(request, response)
+
+    if ((request.method as string).toLowerCase() === 'options') return this.options(response);
 
     for await (const Controller of this.config.controllers) {
       const { routes, prefix } = this.getControllerRoutes(Controller);

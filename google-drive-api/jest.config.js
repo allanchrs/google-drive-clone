@@ -8,6 +8,10 @@ module.exports = {
   coverageReporters: ['text-summary', 'lcov', 'text', 'json-summary'],
   setupFiles: ['reflect-metadata'],
   modulePathIgnorePatterns: ['<rootDir>/dist'],
+  moduleNameMapper: {
+    '^@common/(.*)$': '<rootDir>/src/server/common/$1',
+    '^@enums/(.*)$': '<rootDir>/src/server/enums/$1',
+  },
   moduleDirectories: ['node_modules'],
   collectCoverageFrom: [
     'src/core/use-cases/**/*.use-case.ts',
