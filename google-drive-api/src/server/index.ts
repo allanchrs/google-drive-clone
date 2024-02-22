@@ -12,8 +12,9 @@ class ServerInit {
 
   initialize() {
     const ssl = this.getCertificates()
-    const routes = new Routes()
-    routes.setControllers([UserController])
+    const routes = new Routes({
+      controllers: [UserController]
+    })
     const server = https.createServer(ssl, routes.handler.bind(routes));
     const io = this.socket(server);
     routes.setSocketInstance(io);

@@ -8,17 +8,11 @@ type Controller = {
   prefix: string
 }
 export class Routes {
-  constructor() { }
+  constructor(private readonly config: { controllers: (new () => any)[] }) { }
   public io?: Server
-
-  private controllers: (new () => any)[] = [];
 
   setSocketInstance(io: Server) {
     this.io = io;
-  }
-
-  setControllers(controllers: (new () => any)[]) {
-    this.controllers = controllers;
   }
 
   async defaultRoute(request: IncomingMessage, response: ServerResponse) {
@@ -51,7 +45,7 @@ export class Routes {
   async handler(request: IncomingMessage, response: ServerResponse) {
     this.setDefaultHeaders(response)
 
-    for await (const Controller of this.controllers) {
+    for await (const Controller of this.config.controllers) {
       const {
         routes,
         prefix
