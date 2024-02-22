@@ -2,13 +2,19 @@ import { HttpMethodEnum } from "../../enums"
 
 type DefineOutput = (target: any, propertyKey: string, descriptor: PropertyDescriptor) => any
 
+export type RouteDecoratorInput = {
+  path?: string;
+  status?: number;
+}
+
 type Input = {
   method: HttpMethodEnum,
   path?: string,
-  interceptor?: (target: any, propertyKey: string, descriptor: PropertyDescriptor) => PropertyDescriptor
+  status?: number,
+  interceptor?: (target: any, propertyKey: string, descriptor: PropertyDescriptor) => void
 }
 
-const registerRoute = ({ method, path, target, descriptor }: Input & { target: any, descriptor: PropertyDescriptor }) => {
+const registerRoute = ({ method, path, status, target, descriptor }: Input & { target: any, descriptor: PropertyDescriptor }) => {
   if (!target.routes) {
     target.routes = [];
   }
@@ -18,6 +24,7 @@ const registerRoute = ({ method, path, target, descriptor }: Input & { target: a
 
   target.routes.push({
     method,
+    status,
     path: full_path,
     handler: descriptor.value
   });
@@ -25,12 +32,12 @@ const registerRoute = ({ method, path, target, descriptor }: Input & { target: a
   return descriptor;
 }
 
-export const baseHttpDecorator = ({ method, path, interceptor }: Input): DefineOutput => {
+export const baseHttpDecorator = ({ method, path, status = 200, interceptor }: Input): DefineOutput => {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
     if (interceptor) {
       interceptor(target, propertyKey, descriptor);
     };
 
-    return registerRoute({ target, descriptor, method, path })
+    return registerRoute({ target, descriptor, method, status, path })
   }
 }

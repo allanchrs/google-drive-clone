@@ -1,11 +1,18 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { Server } from "socket.io";
 import { logger } from "../../core/utils/logger/logger";
-import { UserController } from "../controllers/user.controller";
+import { ParamDecoratorEnum } from "@common/enums";
+
+type RouteController = {
+  method: 'POST',
+  status?: number,
+  path?: string,
+  handler: Function
+};
 
 type Controller = {
-  routes: Array<{ method: 'POST', path?: string, handler: Function }>,
-  prefix: string
+  routes: RouteController[],
+  prefix?: string
 }
 export class Routes {
   constructor(private readonly config: { controllers: (new () => any)[] }) { }
@@ -15,22 +22,30 @@ export class Routes {
     this.io = io;
   }
 
-  async defaultRoute(request: IncomingMessage, response: ServerResponse) {
-    response.end('hello world')
-  }
-
-  async options(request: IncomingMessage, response: ServerResponse) {
+  async options(response: ServerResponse) {
     response.writeHead(204)
     response.end()
   }
 
-  private setDefaultHeaders(response: ServerResponse) {
+  private setDefaultResponseHeaders(response: ServerResponse) {
     response.setHeader('Access-Control-Allow-Origin', '*')
     response.setHeader('Content-type', 'application/json')
   }
 
-  private getRouteUrl(prefix: string, path?: string): string {
-    return path ? `${prefix}/${path}` : prefix;
+  private getRouteUrl(prefix?: string, path?: string): string {
+    if (prefix && path) {
+      return `${prefix}/${path}`;
+    }
+
+    if (prefix && !path) {
+      return prefix;
+    }
+
+    if (!prefix && path) {
+      return path;
+    }
+
+    return ''
   }
 
   private routeNotFoundResponse(request: IncomingMessage, response: ServerResponse) {
@@ -42,43 +57,63 @@ export class Routes {
     }));
   }
 
+  private getControllerRoutes(Controller: new () => any): Controller {
+    return Object.getOwnPropertyDescriptors(Controller).prototype.value as Controller;
+  }
+
+  private getMatchRoute(routes: RouteController[], request: IncomingMessage, prefix?: string,): RouteController | undefined {
+    return routes
+      .filter(({ method }) => method.toLowerCase() === request.method?.toLowerCase())
+      .find((route) => {
+        const url = this.getRouteUrl(prefix, route.path);
+        const request_url = request.url?.trim()?.replace(/^\//, '');
+        return url.trim() === request_url
+      })
+  }
+
+  private async executeRouteController({
+    Controller,
+    request,
+    response,
+    route
+  }: { Controller: new () => any; route: RouteController; request: IncomingMessage; response: ServerResponse }): Promise<void> {
+    try {
+      const controller = new Controller();
+      const output = await route.handler.apply(controller, [
+        {
+          [ParamDecoratorEnum.BODY]: request,
+          [ParamDecoratorEnum.REQ]: request,
+          [ParamDecoratorEnum.RES]: response,
+          [ParamDecoratorEnum.SOCKET]: this.io
+        }
+      ]);
+
+      response.writeHead(route.status ?? 200)
+      response.end(JSON.stringify(output))
+    } catch (error: any) {
+      response.writeHead(404)
+      response.end(JSON.stringify({
+        exception: 'InternalServerError',
+        message: error.message
+      }));
+    }
+  }
+
   async handler(request: IncomingMessage, response: ServerResponse) {
-    this.setDefaultHeaders(response)
+    this.setDefaultResponseHeaders(response)
+
+    if (request.method?.toLowerCase() === 'options') return this.options(response);
 
     for await (const Controller of this.config.controllers) {
-      const {
-        routes,
-        prefix
-      } = Object.getOwnPropertyDescriptors(Controller).prototype.value as Controller;
+      const { routes, prefix } = this.getControllerRoutes(Controller);
 
-      const route = routes
-        .filter(({ method }) => method.toLowerCase() === request.method?.toLowerCase())
-        .find((route) => {
-          const url = this.getRouteUrl(prefix, route.path);
-          const formattedUrl = request.url?.startsWith('/') ? `/${url}` : url;
-          return formattedUrl.trim() === request.url?.trim()
-        })
+      const route = this.getMatchRoute(routes, request, prefix)
 
       if (route) {
-        try {
-          const controller = new Controller();
-          const result = await route.handler.apply(controller, [request, response, this.io]);
-          console.log({ result })
-          response.writeHead(200)
-          response.end(JSON.stringify(result))
-          return;
-        } catch (error: any) {
-          response.writeHead(404)
-          response.end(JSON.stringify({
-            exception: 'InternalServerError',
-            message: error.message
-          }));
-          return;
-        }
+        return this.executeRouteController({ Controller, route, request, response })
       }
 
-      this.routeNotFoundResponse(request, response)
-
+      return this.routeNotFoundResponse(request, response)
     }
   }
 }

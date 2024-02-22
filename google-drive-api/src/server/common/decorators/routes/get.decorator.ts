@@ -1,6 +1,6 @@
 import { HttpMethodEnum } from "../../enums"
-import { baseHttpDecorator } from "./base.decorator"
+import { RouteDecoratorInput, baseHttpDecorator } from "./base.decorator"
 
-export const Get = (path?: string) => {
-  return baseHttpDecorator({ method: HttpMethodEnum.GET, path })
+export const Get = (input?: RouteDecoratorInput) => {
+  return baseHttpDecorator({ ...input, method: HttpMethodEnum.GET })
 }

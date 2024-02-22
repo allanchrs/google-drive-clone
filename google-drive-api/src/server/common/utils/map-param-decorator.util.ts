@@ -16,17 +16,9 @@ const tranformer = {
   [ParamDecoratorEnum.SOCKET]: (socket?: Server) => socket,
 }
 
-const getParamByParamDecorator = {
-  [ParamDecoratorEnum.BODY]: (args: any[]) => args.find((arg) => arg instanceof IncomingMessage),
-  [ParamDecoratorEnum.REQ]: (args: any[]) => args.find((arg) => arg instanceof IncomingMessage),
-  [ParamDecoratorEnum.RES]: (args: any[]) => args.find((arg) => arg instanceof ServerResponse),
-  [ParamDecoratorEnum.SOCKET]: (args: any[]) => args.find((arg) => arg instanceof Server),
-}
-
 export const mapParamDecorators = async ({ target, property, args }: MapParamDecorators): Promise<any[]> => {
   if (!Reflect.getMetadataKeys) return []
   if (!Reflect.getMetadata) return []
-
 
   const indices = Reflect.getMetadataKeys(target, property)
     .filter((indice) => Object.values(ParamDecoratorEnum).includes(indice))
@@ -42,7 +34,8 @@ export const mapParamDecorators = async ({ target, property, args }: MapParamDec
   await Promise.all(
     indices.map(async ({ index, key }) => {
       const fn_transform = tranformer[key];
-      const original_param = getParamByParamDecorator[key](args)
+      const [params] = args;
+      const original_param = params[key];
       const parse_param = await fn_transform(original_param);
       output_params[index] = parse_param;
     })

@@ -4,7 +4,7 @@ import { Body, Controller, Post } from "@common/decorators";
 export class UserController {
   // private readonly createUser = new CreateUser(new UserRepository())
 
-  @Post()
+  @Post({ status: 201 })
   async create(
     @Body() body: any,
   ): Promise<any> {
