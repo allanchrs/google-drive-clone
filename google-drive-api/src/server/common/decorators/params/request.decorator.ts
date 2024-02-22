@@ -1,6 +1,5 @@
-// import { IncomingMessage, ServerResponse } from "http";
 import 'reflect-metadata'
-import { ParamDecoratorEnum } from '../enums/param-decorator.enum';
+import { ParamDecoratorEnum } from '../../enums';
 
 export const Req = () => {
   return (target: Object, key: string | symbol, index: number) => {

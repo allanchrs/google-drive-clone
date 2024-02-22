@@ -25,7 +25,11 @@
     "emitDecoratorMetadata": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@common/*": ["./src/server/common/*"],
+      "@enums/*": ["./src/server/enums/*"]
+    }
   },
   "include": ["./src", "@types/fastify.d.ts", "@types/nestjs.d.ts"]
 }

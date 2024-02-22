@@ -1,13 +1,4 @@
-import { IncomingMessage, ServerResponse } from "http";
-import { CreateUser } from "../../core/use-cases/user/create/crate-user.use-case";
-import { UserRepository } from "../../database/implementation/user-repository.interface";
-import { Body } from "../common/decorators/body.decorator";
-import { Controller } from "../common/decorators/controller.decorator";
-import { Post } from "../common/decorators/post.decorator";
-import { Req } from "../common/decorators/request.decorator";
-import { Res } from "../common/decorators/response.decorator";
-import { Socket } from "../common/decorators/socket.decorator";
-import { Server } from "socket.io";
+import { Body, Controller, Post } from "@common/decorators";
 
 @Controller('users')
 export class UserController {
@@ -15,9 +6,8 @@ export class UserController {
 
   @Post()
   async create(
-    @Socket() socket: Server,
+    @Body() body: any,
   ): Promise<any> {
-    return { test: 'aaa' }
-    // return await this.createUser.execute(body);
+    return body;
   }
 }
